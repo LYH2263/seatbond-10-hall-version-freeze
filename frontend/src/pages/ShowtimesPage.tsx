@@ -7,6 +7,7 @@ type Show = {
   film_title: string;
   start_at: string;
   hall_name?: string;
+  layout_version_no?: number | null;
 };
 
 export default function ShowtimesPage() {
@@ -22,6 +23,7 @@ export default function ShowtimesPage() {
           <tr>
             <th>影片</th>
             <th>影厅</th>
+            <th>厅图版本</th>
             <th>开场</th>
           </tr>
         </thead>
@@ -30,6 +32,9 @@ export default function ShowtimesPage() {
             <tr key={s.id}>
               <td>{s.film_title}</td>
               <td>{s.hall_name}</td>
+              <td className="mono">
+                {s.layout_version_no != null ? `v${s.layout_version_no}` : "—"}
+              </td>
               <td className="mono">{new Date(s.start_at).toLocaleString()}</td>
             </tr>
           ))}

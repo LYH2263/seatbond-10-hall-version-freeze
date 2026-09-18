@@ -14,6 +14,27 @@ class Hall(Base):
     cols: Mapped[int] = mapped_column(Integer)
     aisle_cols: Mapped[str] = mapped_column(String(80), default="")  # comma-separated
     showtimes: Mapped[list["Showtime"]] = relationship(back_populates="hall")
+    layout_versions: Mapped[list["HallLayoutVersion"]] = relationship(back_populates="hall")
+
+
+class HallLayoutVersion(Base):
+    """Immutable-ish snapshot of a hall layout (rows/cols/aisles).
+
+    Every layout change creates a new version row instead of mutating history.
+    A version referenced by a showtime that still has active holds is frozen:
+    its rows/cols/aisle_cols must not change (enforced in the API layer).
+    """
+
+    __tablename__ = "hall_layout_versions"
+    __table_args__ = (UniqueConstraint("hall_id", "version_no", name="uq_hall_version"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    hall_id: Mapped[int] = mapped_column(ForeignKey("halls.id"))
+    version_no: Mapped[int] = mapped_column(Integer)
+    rows: Mapped[int] = mapped_column(Integer)
+    cols: Mapped[int] = mapped_column(Integer)
+    aisle_cols: Mapped[str] = mapped_column(String(80), default="")  # comma-separated
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    hall: Mapped[Hall] = relationship(back_populates="layout_versions")
 
 
 class Showtime(Base):
@@ -22,7 +43,13 @@ class Showtime(Base):
     hall_id: Mapped[int] = mapped_column(ForeignKey("halls.id"))
     film_title: Mapped[str] = mapped_column(String(120))
     start_at: Mapped[datetime] = mapped_column(DateTime)
+    # Bound at creation to one hall layout version; that version's rows/cols/aisles
+    # govern this showtime's seat map and hold placement forever.
+    layout_version_id: Mapped[int | None] = mapped_column(
+        ForeignKey("hall_layout_versions.id"), nullable=True
+    )
     hall: Mapped[Hall] = relationship(back_populates="showtimes")
+    layout_version: Mapped[HallLayoutVersion | None] = relationship()
     holds: Mapped[list["SeatHold"]] = relationship(back_populates="showtime")
 
 
