@@ -233,6 +233,40 @@ button:disabled { opacity: .5; cursor: not-allowed; }
 .ok { color: #7ddea0; margin-top: .75rem; }
 .mono { font-family: "IBM Plex Mono", monospace; }
 
+h3 {
+  margin: 1.1rem 0 .5rem;
+  font-size: .95rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--cinema-paper);
+}
+.badge {
+  display: inline-block;
+  padding: .1rem .5rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-family: "IBM Plex Mono", monospace;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.badge-frozen { color: #ff9a8a; border-color: #7a3a30; background: #2a1210; }
+.badge-open { color: #8fe0a8; border-color: #2f5a3a; background: #0f1f14; }
+.warn {
+  margin: .5rem 0 .75rem;
+  padding: .55rem .7rem;
+  border: 1px dashed #8a5a2a;
+  border-radius: 4px;
+  color: #e8b46a;
+  background: #1a1208;
+  font-size: .85rem;
+}
+.row-sel td { background: #1a1018; }
+.btn-ghost {
+  background: transparent;
+  color: var(--cinema-gold);
+  border: 1px solid var(--cinema-gold);
+}
+
 .screen {
   text-align: center;
   margin: 0 auto .85rem;

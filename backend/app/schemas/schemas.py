@@ -8,7 +8,42 @@ class HallOut(BaseModel):
     rows: int
     cols: int
     aisle_cols: list[int]
+    current_version: int | None = None
+    current_version_frozen: bool = False
     model_config = {"from_attributes": True}
+
+
+class LayoutVersionOut(BaseModel):
+    id: int
+    hall_id: int
+    version: int
+    rows: int
+    cols: int
+    aisle_cols: list[int]
+    frozen: bool
+    bound_showtimes: int
+    created_at: datetime
+    model_config = {"from_attributes": True}
+
+
+class LayoutVersionCreate(BaseModel):
+    base_version_id: int | None = None  # 缺省取本厅最新版本
+    rows: int | None = Field(default=None, ge=1, le=60)
+    cols: int | None = Field(default=None, ge=1, le=60)
+    aisle_cols: list[int] | None = None
+
+
+class LayoutVersionUpdate(BaseModel):
+    rows: int | None = Field(default=None, ge=1, le=60)
+    cols: int | None = Field(default=None, ge=1, le=60)
+    aisle_cols: list[int] | None = None
+
+
+class ShowtimeCreate(BaseModel):
+    hall_id: int
+    film_title: str = Field(min_length=1, max_length=120)
+    start_at: datetime
+    layout_version_id: int | None = None  # 缺省绑本厅最新版本
 
 
 class ShowtimeOut(BaseModel):
@@ -17,6 +52,9 @@ class ShowtimeOut(BaseModel):
     film_title: str
     start_at: datetime
     hall_name: str | None = None
+    layout_version_id: int | None = None
+    layout_version: int | None = None
+    layout_frozen: bool = False
     model_config = {"from_attributes": True}
 
 
@@ -60,4 +98,5 @@ class SeatMapOut(BaseModel):
     hall_name: str
     rows: int
     cols: int
+    layout_version: int
     cells: list[SeatMapCell]

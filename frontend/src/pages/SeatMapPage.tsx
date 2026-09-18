@@ -3,7 +3,14 @@ import { api } from "../api/client";
 
 type Show = { id: number; film_title: string; hall_name?: string };
 type Cell = { row: number; col: number; is_aisle: boolean; occupied: boolean; heat: number };
-type MapOut = { showtime_id: number; hall_name: string; rows: number; cols: number; cells: Cell[] };
+type MapOut = {
+  showtime_id: number;
+  hall_name: string;
+  rows: number;
+  cols: number;
+  layout_version: number;
+  cells: Cell[];
+};
 
 export default function SeatMapPage() {
   const [shows, setShows] = useState<Show[]>([]);
@@ -42,7 +49,7 @@ export default function SeatMapPage() {
         </label>
         {map && (
           <span className="mono">
-            {map.hall_name} · {map.rows}×{map.cols} · 热力座图
+            {map.hall_name} · 厅图 v{map.layout_version} · {map.rows}×{map.cols} · 热力座图
           </span>
         )}
       </div>

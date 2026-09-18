@@ -10,10 +10,27 @@ class Hall(Base):
     __tablename__ = "halls"
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     name: Mapped[str] = mapped_column(String(80), unique=True)
+    # rows/cols/aisle_cols 是最新厅图版本的镜像缓存，历史以 hall_layout_versions 为准
     rows: Mapped[int] = mapped_column(Integer)
     cols: Mapped[int] = mapped_column(Integer)
     aisle_cols: Mapped[str] = mapped_column(String(80), default="")  # comma-separated
     showtimes: Mapped[list["Showtime"]] = relationship(back_populates="hall")
+    layout_versions: Mapped[list["HallLayoutVersion"]] = relationship(back_populates="hall")
+
+
+class HallLayoutVersion(Base):
+    """厅图版本：行列与过道列的不可变快照；被引用且仍有持座时冻结。"""
+
+    __tablename__ = "hall_layout_versions"
+    __table_args__ = (UniqueConstraint("hall_id", "version", name="uq_hall_layout_version"),)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    hall_id: Mapped[int] = mapped_column(ForeignKey("halls.id"))
+    version: Mapped[int] = mapped_column(Integer)
+    rows: Mapped[int] = mapped_column(Integer)
+    cols: Mapped[int] = mapped_column(Integer)
+    aisle_cols: Mapped[str] = mapped_column(String(80), default="")  # comma-separated
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    hall: Mapped[Hall] = relationship(back_populates="layout_versions")
 
 
 class Showtime(Base):
@@ -22,7 +39,11 @@ class Showtime(Base):
     hall_id: Mapped[int] = mapped_column(ForeignKey("halls.id"))
     film_title: Mapped[str] = mapped_column(String(120))
     start_at: Mapped[datetime] = mapped_column(DateTime)
+    layout_version_id: Mapped[int | None] = mapped_column(
+        ForeignKey("hall_layout_versions.id"), nullable=True
+    )
     hall: Mapped[Hall] = relationship(back_populates="showtimes")
+    layout_version: Mapped[HallLayoutVersion | None] = relationship()
     holds: Mapped[list["SeatHold"]] = relationship(back_populates="showtime")
 
 
